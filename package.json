@@ -1,0 +1,1 @@
+{"dependencies":{"express":"^4.21.2","libsql":"^0.5.0"},"description":"Farzam Telegram Bot v2 — a thin Telegram pipe. Pip talks to it through its own API; the bot never decides finance.","engines":{"node":">=18"},"main":"src/index.js","name":"farzam-bot-v2","private":true,"scripts":{"start":"node src/index.js","test":"node scripts/smoke.mjs"},"version":"0.1.0"}

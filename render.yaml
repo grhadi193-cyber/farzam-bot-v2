@@ -1,0 +1,34 @@
+# Render Blueprint for Farzam Bot v2 — free tier, MVP.
+# Deploy: push this folder to a private GitHub repo, then in Render
+# Dashboard -> New -> Blueprint, pick the repo. Render creates the service
+# from this file. Secrets (sync: false) must be filled in the dashboard.
+services:
+  - type: web
+    name: farzam-bot-v2
+    env: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: POLLING
+        value: "false"
+      - key: GROUP_WINDOW_SECONDS
+        value: "180"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: PIP_BOT_API_KEY
+        sync: false
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      # Set after the first deploy, once Render shows the real domain:
+      # https://farzam-bot-v2.onrender.com/telegram/webhook
+      # Then redeploy once so the bot registers the webhook at boot.
+      - key: WEBHOOK_URL
+        sync: false
