@@ -55,15 +55,21 @@ router.post('/events/:id/ack', (req, res) => {
 router.post('/send', async (req, res) => {
   const chatId = Number((req.body || {}).chat_id);
   const text = String((req.body || {}).text || '').trim();
+  const b = req.body || {};
   if (!Number.isFinite(chatId) || chatId === 0) return res.status(400).json({ error: 'chat_id must be a numeric Telegram chat id, not a username' });
   if (!text) return res.status(400).json({ error: 'text is required' });
+  if (b.reply_markup !== undefined && (typeof b.reply_markup !== 'object' || Array.isArray(b.reply_markup))) return res.status(400).json({ error: 'reply_markup must be a Telegram keyboard object' });
   const deliveryId = newId();
   const textHash = crypto.createHash('sha256').update(`${chatId}:${text}`).digest('hex');
   const attemptedAt = new Date().toISOString();
   // One retry, then failed. Never retried blindly.
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     try {
-      const result = await telegram.sendMessage(chatId, text);
+      const options = {};
+      if (b.reply_markup) options.reply_markup = b.reply_markup;
+      if (b.parse_mode) options.parse_mode = String(b.parse_mode);
+      if (b.reply_to_message_id) options.reply_to_message_id = Number(b.reply_to_message_id);
+      const result = await telegram.sendMessage(chatId, text, options);
       db.prepare('INSERT INTO deliveries (id, chat_id, text_hash, telegram_message_id, status, attempted_at_iso) VALUES (?,?,?,?,?,?)')
         .run(deliveryId, chatId, textHash, result.message_id || null, 'sent', attemptedAt);
       audit('pip-agent', 'send', 'deliveries', deliveryId);
