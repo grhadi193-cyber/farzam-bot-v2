@@ -1,6 +1,6 @@
 'use strict';
-// Thin Telegram Bot API client. One job: call api.telegram.org.
-// The token never appears in a log, an error message, or a return value.
+// Thin Telegram Bot API client. Keeps presentation concerns in one place.
+// Secrets never appear in logs, errors, or return values.
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
@@ -24,8 +24,36 @@ async function call(method, params = {}) {
   }
   return body.result;
 }
-async function sendMessage(chatId, text) {
-  return call('sendMessage', { chat_id: Number(chatId), text: String(text) });
+async function sendMessage(chatId, text, options = {}) {
+  const params = {
+    chat_id: Number(chatId),
+    text: String(text),
+    parse_mode: options.parse_mode || 'HTML',
+    disable_web_page_preview: options.disable_web_page_preview !== false,
+  };
+  if (options.reply_markup) params.reply_markup = options.reply_markup;
+  if (options.reply_to_message_id) params.reply_parameters = { message_id: Number(options.reply_to_message_id) };
+  return call('sendMessage', params);
+}
+async function editMessageText(chatId, messageId, text, options = {}) {
+  const params = {
+    chat_id: Number(chatId),
+    message_id: Number(messageId),
+    text: String(text),
+    parse_mode: options.parse_mode || 'HTML',
+    disable_web_page_preview: options.disable_web_page_preview !== false,
+  };
+  if (options.reply_markup) params.reply_markup = options.reply_markup;
+  return call('editMessageText', params);
+}
+async function answerCallbackQuery(callbackQueryId, text, showAlert = false) {
+  return call('answerCallbackQuery', { callback_query_id: String(callbackQueryId), text: text ? String(text) : undefined, show_alert: Boolean(showAlert) });
+}
+async function sendChatAction(chatId, action = 'typing') {
+  return call('sendChatAction', { chat_id: Number(chatId), action });
+}
+async function setMyCommands(commands) {
+  return call('setMyCommands', { commands });
 }
 async function getMe() { return call('getMe', {}); }
 async function getUpdates(offset, limit = 100, timeout = 30) {
@@ -42,4 +70,4 @@ async function downloadFile(fileId, destDir, fileName) {
   fs.writeFileSync(dest, buf);
   return { dest, filePath: file.file_path, size: buf.length };
 }
-module.exports = { call, sendMessage, getMe, getUpdates, downloadFile };
+module.exports = { call, sendMessage, editMessageText, answerCallbackQuery, sendChatAction, setMyCommands, getMe, getUpdates, downloadFile };
