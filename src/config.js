@@ -23,6 +23,8 @@ const config = {
   webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET || '',
   webhookUrl: process.env.WEBHOOK_URL || '',
   pipApiKey: process.env.PIP_BOT_API_KEY || '',
+  // JSON object mapping first-login access codes to {name, role}.
+  telegramAccessCodesJson: process.env.TELEGRAM_ACCESS_CODES_JSON || '',
   databaseUrl: process.env.DATABASE_URL || '',
   tursoUrl: process.env.TURSO_DATABASE_URL || '',
   tursoToken: process.env.TURSO_AUTH_TOKEN || '',
