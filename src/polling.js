@@ -2,7 +2,7 @@
 // Long polling, local dev only. Never run polling and a webhook at the
 // same time — Telegram delivers each update to only one of them.
 const telegram = require('./telegram');
-const { handleUpdate } = require('./handlers/updates');
+const { handleConversation } = require('./handlers/conversation');
 const { db } = require('./db');
 
 let offset = 0;
@@ -11,7 +11,7 @@ async function pollOnce() {
   const updates = await telegram.getUpdates(offset, 100, 5);
   for (const update of updates) {
     offset = Math.max(offset, update.update_id + 1);
-    try { await handleUpdate(update); } catch (e) { console.error('[polling] handleUpdate failed:', e.message); }
+    try { await handleConversation(update); } catch (e) { console.error('[polling] handleConversation failed:', e.message); }
   }
 }
 async function startPolling() {
