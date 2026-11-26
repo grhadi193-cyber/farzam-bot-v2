@@ -23,6 +23,7 @@ if (require.main === module) {
     if (config.webhookUrl && config.telegramToken) {
       try {
         await telegram.call('setWebhook', { url: config.webhookUrl, secret_token: config.webhookSecret || undefined });
+        await telegram.setMyCommands([{ command: 'start', description: 'شروع و ورود به دستیار' }, { command: 'menu', description: 'نمایش منوی اصلی' }]);
         console.log('[telegram] webhook set:', config.webhookUrl);
       } catch (e) { console.error('[telegram] setWebhook failed:', e.message); }
     } else if (config.polling && config.telegramToken) {
