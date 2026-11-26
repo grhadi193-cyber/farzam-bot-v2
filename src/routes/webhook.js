@@ -4,13 +4,13 @@
 // never block the ack, or Telegram will re-deliver the update.
 const express = require('express');
 const { requireWebhookSecret } = require('../auth');
-const { handleUpdate } = require('../handlers/updates');
+const { handleConversation } = require('../handlers/conversation');
 const router = express.Router();
 router.post('/telegram/webhook', requireWebhookSecret, (req, res) => {
   const update = req.body || {};
   res.json({ ok: true });
   setImmediate(async () => {
-    try { await handleUpdate(update); } catch (e) { console.error('[webhook] handleUpdate failed:', e.message); }
+    try { await handleConversation(update); } catch (e) { console.error('[webhook] handleConversation failed:', e.message); }
   });
 });
 module.exports = router;
